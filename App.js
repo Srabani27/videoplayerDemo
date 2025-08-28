@@ -1,4 +1,3 @@
-// App.js
 import React from 'react';
 import { Platform, SafeAreaView, View, Text } from 'react-native';
 import AssVideoWeb from './components/AssVideoWeb';
@@ -14,9 +13,7 @@ export default function App() {
           </Text>
           <AssVideoWeb
             videoSrc="/media/sample.mp4"
-            assSrc="/media/sample.ass"
-            // fonts={['/media/fonts/MyFont.ttf']} // optional if your .ass references fonts
-          />
+            assSrc="/media/sample.ass"/>
         </View>
       </SafeAreaView>
     );

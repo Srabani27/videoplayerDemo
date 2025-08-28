@@ -1,6 +1,3 @@
-// components/AssVideoWeb.jsx
-// Web player: real <video> + SubtitlesOctopus (libass-wasm) to render .ass as-is.
-
 import { useEffect, useRef } from 'react';
 import { Platform, View } from 'react-native';
 

@@ -1,6 +1,3 @@
-// components/AssVideoNative.jsx
-// Android/iOS: WebView page that uses SubtitlesOctopus to render .ass (as text).
-
 import React, { useEffect, useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { WebView } from 'react-native-webview';
@@ -30,7 +27,7 @@ export default function AssVideoNative({ videoAssetModule, assAssetModule }) {
   const html = useMemo(() => {
     if (!videoUri || !assContent) return null;
     return `
-<!doctype html><html>
+<!doctype html>
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover"/>
