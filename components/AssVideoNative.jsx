@@ -15,17 +15,36 @@ export default function AssVideoNative({ videoAssetModule, assAssetModule }) {
       const s = Asset.fromModule(assAssetModule);
       await v.downloadAsync();
       await s.downloadAsync();
+
+      // Load subtitles
       const text = await FileSystem.readAsStringAsync(s.localUri);
+
+      // Convert video to base64 (works inside WebView)
+      const base64Video = await FileSystem.readAsStringAsync(v.localUri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
       if (mounted) {
-        setVideoUri(v.localUri);
+        setVideoUri(`data:video/mp4;base64,${base64Video}`);
         setAssContent(text);
       }
     })();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, [videoAssetModule, assAssetModule]);
 
   const html = useMemo(() => {
     if (!videoUri || !assContent) return null;
+
+    // Escape special characters for safe JS embedding
+    const safeSub = assContent
+      .replace(/\\/g, '\\\\')
+      .replace(/`/g, '\\`')
+      .replace(/\$/g, '\\$')
+      .replace(/"/g, '\\"')
+      .replace(/\r?\n/g, '\\n');
+
     return `
 <!doctype html>
 <head>
@@ -40,7 +59,7 @@ export default function AssVideoNative({ videoAssetModule, assAssetModule }) {
 </head>
 <body>
   <div id="wrap">
-    <video id="v" playsinline controls preload="metadata" src="${videoUri}"></video>
+    <video id="v" playsinline controls autoplay muted preload="auto" src="${videoUri}"></video>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/libass-wasm@4.1.0/dist/js/subtitles-octopus.js"></script>
   <script>
@@ -50,9 +69,7 @@ export default function AssVideoNative({ videoAssetModule, assAssetModule }) {
         var video = document.getElementById('v');
         var instance = new window.SubtitlesOctopus({
           video: video,
-          // pass the raw .ass text (no conversion!)
-          subContent: \`${assContent
-            .replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`,
+          subContent: "${safeSub}",
           workerUrl: "https://cdn.jsdelivr.net/npm/libass-wasm@4.1.0/dist/js/subtitles-octopus-worker.js",
           legacyWorkerUrl: "https://cdn.jsdelivr.net/npm/libass-wasm@4.1.0/dist/js/subtitles-octopus-worker-legacy.js",
           renderMode: 'wasm-blend'
